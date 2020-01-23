@@ -1,7 +1,7 @@
-package com.example.reader;
+package com.example.data;
 
 public class WrongDataFormatException extends Exception {
-    public WrongDataFormatException(String message) {
+    WrongDataFormatException(String message) {
         super(message);
     }
 }

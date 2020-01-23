@@ -1,8 +1,10 @@
-import reader.Reader;
-import reader.WrongDataFormatException;
+package com.example;
+
+import com.example.data.Reader;
+import com.example.data.WrongDataFormatException;
 
 public class Application {
-    public static void main(String[]args) {
+    public static void main(String[] args) {
         try {
             Reader.readFromFile("src/main/resources/data/01CYBATON.mst").forEach(System.out::println);
         } catch (WrongDataFormatException e) {
