@@ -1,5 +1,6 @@
 package com.example.adx;
 
+import com.example.adx.exc.NotEnoughDataForGivenRange;
 import com.example.data.Record;
 
 import java.math.BigDecimal;
@@ -31,7 +32,7 @@ public class ADX {
 
         return directionalIndexes.stream()
                 .reduce(BigDecimal::add)
-                .orElseThrow(IllegalArgumentException::new)
+                .orElseThrow(NotEnoughDataForGivenRange::new)
                 .divide(new BigDecimal(directionalIndexes.size()), BigDecimal.ROUND_HALF_EVEN);
     }
 
@@ -58,9 +59,6 @@ public class ADX {
                         .collect(Collectors.toList())
         );
         BigDecimal averageTrueRange = averageTrueRange(records);
-        if (averageTrueRange.compareTo(BigDecimal.ZERO) == 0) {
-            System.out.println("AWT = 0 !!!!!!!!!!!!!!!!!!!!!!!!!!");
-        }
         return smoothedPositiveDirectionalMovement
                 .divide(averageTrueRange, BigDecimal.ROUND_HALF_EVEN)
                 .multiply(new BigDecimal("100"));

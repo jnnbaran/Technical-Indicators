@@ -18,7 +18,7 @@ public class Reader {
         List<Record> records = new ArrayList<>();
         try {
             List<String> lines = Files.readAllLines(path);
-            lines = lines.subList(1, lines.size() - 1);
+            lines = lines.subList(1, lines.size());
             for(String line : lines) {
                 String[] recordParams = line.split(",");
                 if(recordParams.length == 7) {
