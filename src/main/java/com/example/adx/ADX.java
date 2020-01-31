@@ -36,7 +36,7 @@ public class ADX {
     public static List<Record> getLatestNRecordsList(List<Record> list, int range) {
         List<Record> records = list.stream()
                 .sorted(Comparator.comparing(Record::getDate))
-                .filter(record -> list.indexOf(record) > range)
+                .filter(record -> list.indexOf(record) < range)
                 .collect(Collectors.toList());
         Collections.reverse(records);
         return records;
@@ -44,8 +44,8 @@ public class ADX {
 
     public static List<Record> getRecordsWithHistory(List<Record> list, Record currentRecord, int periods) {
         return list.stream().filter(
-                record -> list.indexOf(currentRecord) - list.indexOf(record) <= periods &&
-                        list.indexOf(currentRecord) >= list.indexOf(record)
+                record -> list.indexOf(record) - list.indexOf(currentRecord) <= periods &&
+                          list.indexOf(record) >= list.indexOf(currentRecord)
         ).collect(Collectors.toList());
     }
 
