@@ -16,7 +16,9 @@ public class ADX {
         List<BigDecimal> directionalIndexes = new ArrayList<>();
         List<Record> latestRecords = getLatestNRecordsList(allRecords, range);
 
-        latestRecords.forEach(
+        latestRecords.stream()
+                .filter(record -> allRecords.size() - allRecords.indexOf(record) >= period + 1)
+                .forEach(
                 currentRecord -> recordsWithHistory.add(getRecordsWithHistory(allRecords, currentRecord, period))
         );
 
@@ -56,6 +58,9 @@ public class ADX {
                         .collect(Collectors.toList())
         );
         BigDecimal averageTrueRange = averageTrueRange(records);
+        if (averageTrueRange.compareTo(BigDecimal.ZERO) == 0) {
+            System.out.println("AWT = 0 !!!!!!!!!!!!!!!!!!!!!!!!!!");
+        }
         return smoothedPositiveDirectionalMovement
                 .divide(averageTrueRange, BigDecimal.ROUND_HALF_EVEN)
                 .multiply(new BigDecimal("100"));

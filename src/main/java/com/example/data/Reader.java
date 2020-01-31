@@ -8,6 +8,7 @@ import java.nio.file.Paths;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class Reader {
@@ -37,6 +38,7 @@ public class Reader {
         } catch (IOException | ParseException ex) {
             ex.printStackTrace();
         }
+        Collections.reverse(records);
         return records;
     }
 }
