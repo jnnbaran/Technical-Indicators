@@ -58,10 +58,7 @@ public class ADX {
                         .map(Record::getHigh)
                         .collect(Collectors.toList())
         );
-        BigDecimal averageTrueRange = averageTrueRange(records);
-        return smoothedPositiveDirectionalMovement
-                .divide(averageTrueRange, BigDecimal.ROUND_HALF_EVEN)
-                .multiply(new BigDecimal("100"));
+        return countDirectionalIndicator(records, smoothedPositiveDirectionalMovement);
     }
 
     public static BigDecimal countNegativeDirectionalIndicator(List<Record> records) {
@@ -70,10 +67,14 @@ public class ADX {
                             .map(Record::getLow)
                             .collect(Collectors.toList())
             );
-            BigDecimal averageTrueRange = averageTrueRange(records);
-            return smoothedNegativeDirectionalMovement
-                    .divide(averageTrueRange, BigDecimal.ROUND_HALF_EVEN)
-                    .multiply(new BigDecimal("100"));
+            return countDirectionalIndicator(records, smoothedNegativeDirectionalMovement);
+    }
+
+    public static BigDecimal countDirectionalIndicator(List<Record> records, BigDecimal smoothedDirectionalIndicator) {
+        BigDecimal averageTrueRange = averageTrueRange(records);
+        return smoothedDirectionalIndicator
+                .divide(averageTrueRange, BigDecimal.ROUND_HALF_EVEN)
+                .multiply(new BigDecimal("100"));
     }
 
     public static BigDecimal countSmoothedDirectionalMovement(List<BigDecimal> records) {
