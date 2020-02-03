@@ -9,7 +9,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Reader {
 
@@ -38,7 +40,22 @@ public class Reader {
         } catch (IOException | ParseException ex) {
             ex.printStackTrace();
         }
+        return records;
+    }
+
+    public static List<Record> getLatestNRecordsList(List<Record> list, int range) {
+        List<Record> records = list.stream()
+                .sorted(Comparator.comparing(Record::getDate))
+                .filter(record -> list.indexOf(record) < range)
+                .collect(Collectors.toList());
         Collections.reverse(records);
         return records;
+    }
+
+    public static List<Record> getRecordsWithHistory(List<Record> list, Record currentRecord, int periods) {
+        return list.stream().filter(
+                record -> list.indexOf(record) - list.indexOf(currentRecord) <= periods &&
+                        list.indexOf(record) >= list.indexOf(currentRecord)
+        ).collect(Collectors.toList());
     }
 }
