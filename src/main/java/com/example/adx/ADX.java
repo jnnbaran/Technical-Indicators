@@ -6,22 +6,20 @@ import com.example.data.Record;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
+
 
 public class ADX {
 
-    public static BigDecimal countAverageDirectionalIndex(List<Record> allRecords, int range, int period) {
+    public static BigDecimal countAverageDirectionalIndex(List<Record> allRecords, int period) {
         List<List<Record>> recordsWithHistory = new ArrayList<>();
         List<BigDecimal> directionalIndexes = new ArrayList<>();
-        List<Record> latestRecords = Reader.getLatestNRecordsList(allRecords, range);
+        List<Record> latestRecords = Reader.getLatestNRecordsList(allRecords, period);
 
         latestRecords.stream()
-                .filter(record -> allRecords.size() - allRecords.indexOf(record) >= period + 1)
+                .filter(record -> allRecords.size() - allRecords.indexOf(record) > period)
                 .forEach(
-                currentRecord -> recordsWithHistory.add(Reader.getRecordsWithHistory(allRecords, currentRecord, period))
+                currentRecord -> recordsWithHistory.add(Reader.getRecordWithHistory(allRecords, currentRecord, period))
         );
 
         for(List<Record> records : recordsWithHistory) {
@@ -37,38 +35,51 @@ public class ADX {
                 .divide(new BigDecimal(directionalIndexes.size()), BigDecimal.ROUND_HALF_EVEN);
     }
 
-    public static BigDecimal countPositiveDirectionalIndicator(List<Record> records) {
-        BigDecimal smoothedPositiveDirectionalMovement = countSmoothedDirectionalMovement(
-                records.stream()
-                        .map(Record::getHigh)
-                        .collect(Collectors.toList())
-        );
-        return countDirectionalIndicator(records, smoothedPositiveDirectionalMovement);
+    private static BigDecimal countPositiveDirectionalIndicator(List<Record> records) {
+        List<BigDecimal> directionalMovement = new ArrayList<>();
+
+        for(int i=1; i<records.size(); ++i) {
+            if(records.get(i).getHigh().subtract(records.get(i-1).getHigh()).compareTo(records.get(i-1).getLow().subtract(records.get(i).getLow())) > 0) {
+                directionalMovement.add(records.get(i).getHigh().subtract(records.get(i-1).getHigh()));
+            } else {
+                directionalMovement.add(BigDecimal.ZERO);
+            }
+        }
+
+        BigDecimal smoothedPositiveDirectionalMovement = countSmoothedDirectionalMovement(directionalMovement);
+        return countDirectionalIndicator(records.subList(1,records.size()), smoothedPositiveDirectionalMovement);
     }
 
-    public static BigDecimal countNegativeDirectionalIndicator(List<Record> records) {
-            BigDecimal smoothedNegativeDirectionalMovement = countSmoothedDirectionalMovement(
-                    records.stream()
-                            .map(Record::getLow)
-                            .collect(Collectors.toList())
-            );
-            return countDirectionalIndicator(records, smoothedNegativeDirectionalMovement);
+    private static BigDecimal countNegativeDirectionalIndicator(List<Record> records) {
+        List<BigDecimal> directionalMovement = new ArrayList<>();
+
+        for(int i=1; i<records.size(); ++i) {
+            if(records.get(i-1).getLow().subtract(records.get(i).getLow()).compareTo(records.get(i).getHigh().subtract(records.get(i-1).getHigh())) > 0) {
+                directionalMovement.add(records.get(i-1).getLow().subtract(records.get(i).getLow()));
+            } else {
+                directionalMovement.add(BigDecimal.ZERO);
+            }
+        }
+
+        BigDecimal smoothedNegativeDirectionalMovement = countSmoothedDirectionalMovement(directionalMovement);
+        return countDirectionalIndicator(records.subList(1,records.size()), smoothedNegativeDirectionalMovement);
     }
 
-    public static BigDecimal countDirectionalIndicator(List<Record> records, BigDecimal smoothedDirectionalIndicator) {
-        BigDecimal averageTrueRange = averageTrueRange(records);
+    private static BigDecimal countDirectionalIndicator(List<Record> records, BigDecimal smoothedDirectionalIndicator) {
+        BigDecimal averageTrueRange = countAverageTrueRange(records);
         return smoothedDirectionalIndicator
                 .divide(averageTrueRange, BigDecimal.ROUND_HALF_EVEN)
                 .multiply(new BigDecimal("100"));
     }
 
-    public static BigDecimal countSmoothedDirectionalMovement(List<BigDecimal> records) {
+    private static BigDecimal countSmoothedDirectionalMovement(List<BigDecimal> records) {
         BigDecimal directionalMovement = records.stream().reduce(BigDecimal::add).orElseThrow(IllegalArgumentException::new);
         return directionalMovement.subtract(directionalMovement
-                .divide(new BigDecimal(records.size() - 1), BigDecimal.ROUND_HALF_EVEN));
+                .divide(new BigDecimal(records.size()), BigDecimal.ROUND_HALF_EVEN))
+                .add(records.get(records.size() - 1));
     }
 
-    public static BigDecimal averageTrueRange(List<Record> list) {
+    private static BigDecimal countAverageTrueRange(List<Record> list) {
         return list.stream()
                 .map(record -> {
                     BigDecimal highMinusLow = record.getHigh().subtract(record.getLow());
@@ -86,7 +97,7 @@ public class ADX {
                 .divide(new BigDecimal(list.size()), BigDecimal.ROUND_HALF_EVEN);
     }
 
-    public static BigDecimal countDirectionalIndex(BigDecimal positiveDirectionalIndicator, BigDecimal negativeDirectionalIndicator) {
+    private static BigDecimal countDirectionalIndex(BigDecimal positiveDirectionalIndicator, BigDecimal negativeDirectionalIndicator) {
         return positiveDirectionalIndicator
                 .subtract(negativeDirectionalIndicator).abs()
                 .divide(

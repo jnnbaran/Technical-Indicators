@@ -8,7 +8,6 @@ import java.nio.file.Paths;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -40,19 +39,20 @@ public class Reader {
         } catch (IOException | ParseException ex) {
             ex.printStackTrace();
         }
-        return records;
-    }
 
-    public static List<Record> getLatestNRecordsList(List<Record> list, int range) {
-        List<Record> records = list.stream()
+        return records
+                .stream()
                 .sorted(Comparator.comparing(Record::getDate))
-                .filter(record -> list.indexOf(record) < range)
                 .collect(Collectors.toList());
-        Collections.reverse(records);
-        return records;
     }
 
-    public static List<Record> getRecordsWithHistory(List<Record> list, Record currentRecord, int periods) {
+    public static List<Record> getLatestNRecordsList(List<Record> records, int period) {
+        return records.stream()
+                .filter(record -> records.indexOf(record) >= records.size() - period*2)
+                .collect(Collectors.toList());
+    }
+
+    public static List<Record> getRecordWithHistory(List<Record> list, Record currentRecord, int periods) {
         return list.stream().filter(
                 record -> list.indexOf(record) - list.indexOf(currentRecord) <= periods &&
                         list.indexOf(record) >= list.indexOf(currentRecord)

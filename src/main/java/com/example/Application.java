@@ -19,7 +19,7 @@ public class Application {
         try{
             List<Record> recordList = Reader.readFromFile("src/main/resources/data/MBANK.mst");
             System.out.println(EMA.percentagePriceOscillator(recordList));
-            System.out.println(ADX.countAverageDirectionalIndex(recordList, 28, 14));
+            System.out.println(ADX.countAverageDirectionalIndex(recordList, 14));
         } catch(WrongDataFormatException e){
             System.out.println("Couldn't read file due to wrong format... \n" + e.getMessage());
         }
@@ -33,7 +33,7 @@ public class Application {
             for (Path path : paths) {
                 System.out.println("counting for " + path.toString());
                 List<Record> recordList = Reader.readFromFile(path.toString());
-                System.out.println(ADX.countAverageDirectionalIndex(recordList, 28, 14));
+                System.out.println(ADX.countAverageDirectionalIndex(recordList, 14));
             }
         } catch (IOException e) {
             System.out.println("IOException");

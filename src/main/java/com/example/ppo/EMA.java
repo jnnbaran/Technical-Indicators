@@ -32,7 +32,6 @@ public class EMA {
 
     private static List<Record> getRecords(List<Record> records, int period) {
             return records.stream()
-                    .sorted(Comparator.comparing(Record::getDate))
                     .filter(record -> records.indexOf(record) >= records.size() - period*2)
                     .collect(Collectors.toList());
     }
