@@ -4,7 +4,7 @@ import com.example.adx.ADX;
 import com.example.data.Reader;
 import com.example.data.Record;
 import com.example.data.WrongDataFormatException;
-import com.example.ppo.EMA;
+import com.example.ppo.PPO;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -18,8 +18,8 @@ public class Application {
     public static void main(String[] args) {
         try{
             List<Record> recordList = Reader.readFromFile("src/main/resources/data/MBANK.mst");
-            System.out.println(EMA.percentagePriceOscillator(recordList));
-            System.out.println(ADX.countAverageDirectionalIndex(recordList, 14));
+            System.out.println("PPO= " + PPO.percentagePriceOscillator(recordList));
+            System.out.println("ADX= " + ADX.countAverageDirectionalIndex(recordList, 14));
         } catch(WrongDataFormatException e){
             System.out.println("Couldn't read file due to wrong format... \n" + e.getMessage());
         }
